@@ -1,5 +1,5 @@
 const DbContacts = require('../../db/contacts')
-const {renderError} = require('../utils')
+const { renderError } = require('../utils')
 
 const router = require('express').Router()
 
@@ -26,7 +26,6 @@ router.get('/:contactId', (request, response, next) => {
     })
     .catch( error => renderError(error, response, response) )
 })
-
 
 router.get('/:contactId/delete', (request, response, next) => {
   const contactId = request.params.contactId
