@@ -1,17 +1,22 @@
 const db = require('./db')
 
-const getUser = () => {
-  return db.query(`
+const getUser = (email) => {
+  return db.one(`
     SELECT
       *
     FROM
       users
-    `
+      WHERE
+      email=$1
+    `,
+    [
+      email
+    ]
   )
   .catch(error => error)
 }
 
-const createUser = (email, password) => {
+const createUser = (email, hash) => {
   return db.query(`
     INSERT INTO
       users (email, password)
@@ -22,9 +27,9 @@ const createUser = (email, password) => {
     `,
     [
       email,
-      password,
+      hash
     ])
-    .catch(error => error);
+    .catch(error => error)
 }
 
 module.exports = {

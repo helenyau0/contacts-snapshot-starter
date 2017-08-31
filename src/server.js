@@ -13,6 +13,15 @@ app.set('views', __dirname + '/views')
 app.use(express.static('public'))
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
+
+require('dotenv').load();
+
+app.use(session({
+  secret: process.env.SECRET_KEY,
+  resave: true,
+  saveUninitialized: false
+}))
+
 app.use((request, response, next) => {
   response.locals.query = ''
   next()
