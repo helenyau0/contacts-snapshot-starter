@@ -1,13 +1,15 @@
 const bcrypt = require('bcrypt')
 
-const createValidUser = (password) => {
-  let saltRounds = 10;
+const findUser = (password, hash) => {
+  return bcrypt.compare(password, hash)
+}
 
-  return bcrypt.hash(password, saltRounds).then(function(hashedPassword) {
-    return hashedPassword;
-  })
+const createValidUser = (password) => {
+  let saltRounds = 10
+  return bcrypt.hash(password, saltRounds)
 }
 
 module.exports = {
+  findUser,
   createValidUser
 }

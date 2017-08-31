@@ -1,5 +1,5 @@
-const DbUsers = require('../../db/users')
 const Users = require('../auth')
+const DbUsers = require('../../db/users')
 const { renderError } = require('../utils')
 
 const router = require('express').Router()
@@ -13,11 +13,18 @@ router.get('/login', (request, response) => {
 })
 
 router.post('/login', (request, response) => {
-  const { email, password } = req.body
+  const { email, password } = request.body
 
-  DbUser.getUser(email)
+  DbUsers.getUser(email)
   .then(user => {
-
+    return Users.findUser(password, user.password)
+    .then(isMatch => {
+      if(isMatch) {
+        request.session.user = user
+        response.redirect('/')
+      }
+    })
+    .catch(err => next(err))
   })
 })
 
@@ -34,12 +41,9 @@ router.post('/signup', (request, response) => {
 
   Users.createValidUser(password)
   .then(hash => {
-    console.log('heyyyyyyyy');
-    DbUsers.createUser(email, hash)
+    return DbUsers.createUser(email, hash)
   })
   .then(user => {
-    console.log('hellooooo');
-    console.log('whatru', user);
     request.session.user = user
     response.redirect('/')
   }).catch(err => next(err))

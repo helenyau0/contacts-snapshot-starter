@@ -6,7 +6,7 @@ const getUser = (email) => {
       *
     FROM
       users
-      WHERE
+    WHERE
       email=$1
     `,
     [
@@ -16,18 +16,18 @@ const getUser = (email) => {
   .catch(error => error)
 }
 
-const createUser = (email, hash) => {
-  return db.query(`
+const createUser = (email, password) => {
+  return db.oneOrNone(`
     INSERT INTO
       users (email, password)
     VALUES
-      ($1::text, $2::text)
+      ($1, $2)
     RETURNING
       *
     `,
     [
       email,
-      hash
+      password
     ])
     .catch(error => error)
 }
