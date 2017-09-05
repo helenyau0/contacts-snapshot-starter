@@ -1,5 +1,6 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const flash = require('connect-flash')
 const session = require('express-session')
 const dbUsers = require('./db/contacts')
 const dbContacts = require('./db/contacts')
@@ -19,8 +20,11 @@ require('dotenv').load();
 app.use(session({
   secret: process.env.SECRET_KEY,
   resave: true,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: { maxAge: 30*60*1000 }
 }))
+
+app.use(flash())
 
 app.use((request, response, next) => {
   response.locals.query = ''

@@ -3,7 +3,15 @@ const contacts = require('./contacts')
 const users = require('./users')
 const DbContacts = require('../../db/contacts');
 
-router.get('/', (request, response) => {
+const loginRequired = (request, response, next) => {
+  if(!request.session.user) {
+    response.redirect('/users/login')
+  } else {
+    next()
+  }
+}
+
+router.get('/', loginRequired, (request, response) => {
   if(request.session.user) {
     DbContacts.getContacts()
     .then((contacts) => {response.render('index', { contacts })})

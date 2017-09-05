@@ -1,5 +1,10 @@
 const db = require('./db')
 
+const getAllUsers = () => {
+  return db.any('SELECT * FROM users')
+  .catch(error => error)
+}
+
 const getUser = (email) => {
   return db.one(`
     SELECT
@@ -34,5 +39,6 @@ const createUser = (email, password) => {
 
 module.exports = {
   getUser,
-  createUser
+  createUser,
+  getAllUsers
 }
