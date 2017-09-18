@@ -1,7 +1,20 @@
 const db = require('./db')
 
-const getAllUsers = () => {
-  return db.any('SELECT * FROM users')
+const getUserEmail = (email) => {
+  return db.one(`
+    SELECT
+      *
+    FROM
+      users
+    WHERE
+      email=$1
+    LIMIT
+      1
+      `,
+      [
+        email
+      ]
+    )
   .catch(error => error)
 }
 
@@ -40,5 +53,5 @@ const createUser = (email, password) => {
 module.exports = {
   getUser,
   createUser,
-  getAllUsers
+  getUserEmail
 }
