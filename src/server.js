@@ -21,7 +21,7 @@ app.use(session({
   secret: process.env.SECRET_KEY,
   resave: true,
   saveUninitialized: false,
-  cookie: { maxAge: 30*60*1000 }
+  cookie: { maxAge: 3600000 }
 }))
 
 app.use(flash())
