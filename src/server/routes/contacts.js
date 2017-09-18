@@ -1,22 +1,34 @@
 const DbContacts = require('../../db/contacts')
-const {renderError} = require('../utils')
+const { renderError } = require('../utils')
 
 const router = require('express').Router()
 
-router.get('/new', (request, response) => {
-  response.render('new')
+const loginRequired = (request, response, next) => {
+  if(!request.session.user) {
+    response.redirect('/users/login')
+  } else {
+    next()
+  }
+}
+
+router.get('/new', loginRequired, (request, response) => {
+  if(request.session.user.admin === true) {
+    response.render('new')
+  } else {
+    response.status(403).send('Forbidden: User unauthorized :(')
+  }
 })
 
 router.post('/', (request, response, next) => {
   DbContacts.createContact(request.body)
-    .then(function(contact) {
-      if (contact) return response.redirect(`/contacts/${contact[0].id}`)
-      next()
-    })
-    .catch( error => renderError(error, response, response) )
+  .then(function(contact) {
+    if (contact) return response.redirect(`/contacts/${contact[0].id}`)
+    next()
+  })
+  .catch( error => renderError(error, response, response) )
 })
 
-router.get('/:contactId', (request, response, next) => {
+router.get('/:contactId', loginRequired, (request, response, next) => {
   const contactId = request.params.contactId
   if (!contactId || !/^\d+$/.test(contactId)) return next()
   DbContacts.getContact(contactId)
@@ -27,18 +39,21 @@ router.get('/:contactId', (request, response, next) => {
     .catch( error => renderError(error, response, response) )
 })
 
-
-router.get('/:contactId/delete', (request, response, next) => {
+router.get('/:contactId/delete', loginRequired, (request, response, next) => {
   const contactId = request.params.contactId
-  DbContacts.deleteContact(contactId)
-    .then(function(contact) {
-      if (contact) return response.redirect('/')
-      next()
-    })
-    .catch( error => renderError(error, response, response) )
+  if(request.session.user.admin === true) {
+    DbContacts.deleteContact(contactId)
+      .then(function(contact) {
+        if (contact) return response.redirect('/')
+        next()
+      })
+      .catch( error => renderError(error, response, response) )
+  } else {
+    response.status(403).send('Forbidden: User unauthorized :(')
+  }
 })
 
-router.get('/search', (request, response, next) => {
+router.get('/search', loginRequired, (request, response, next) => {
   const query = request.query.q
   DbContacts.searchForContact(query)
     .then(function(contacts) {
