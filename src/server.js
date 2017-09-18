@@ -1,6 +1,5 @@
 const express = require('express')
 const bodyParser = require('body-parser')
-const flash = require('connect-flash')
 const session = require('express-session')
 const dbUsers = require('./db/contacts')
 const dbContacts = require('./db/contacts')
@@ -23,8 +22,6 @@ app.use(session({
   saveUninitialized: false,
   cookie: { maxAge: 3600000 }
 }))
-
-app.use(flash())
 
 app.use((request, response, next) => {
   response.locals.query = ''
