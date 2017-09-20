@@ -18,7 +18,7 @@ describe('contacts', () => {
       }
       contacts.createContact(contact)
       .then(contact => {
-        expect(contact).to.be.a('string')
+        expect(contact).to.be.an('array')
         expect(contact[0]).to.be.an('object')
         expect(typeof contact[0].id).to.equal('number')
         expect(contact[0].first_name).to.deep.equal('chococat')
@@ -33,11 +33,14 @@ describe('contacts', () => {
     it('should be a function', () => {
       expect(contacts.getContacts).to.be.a('function')
     })
-    it('should select everything inside the table', (done) => {
+    it('should select everything inside the contacts table', (done) => {
       contacts.getContacts()
       .then(all_contacts => {
         expect(all_contacts).to.be.an('array')
-        expect(all_contacts[0]).to.be.an('object')
+        expect(all_contacts.length).to.deep.equal(3)
+        expect(all_contacts[0]).to.deep.equal({ id: 1, first_name: 'Jared', last_name: 'Grippe' })
+        expect(all_contacts[1]).to.deep.equal({ id: 2, first_name: 'Tanner', last_name: 'Welsh' })
+        expect(all_contacts[2]).to.deep.equal({ id: 3, first_name: 'NeEddra', last_name: 'James' })
         done()
       })
       .catch(err => done(err))
@@ -48,7 +51,7 @@ describe('contacts', () => {
     it('should be a function', () => {
       expect(contacts.getContact).to.be.a('function')
     })
-    it.only('should select everything inside the table', (done) => {
+    it('should select everything inside the contacts table belonging to the given id', (done) => {
       contacts.getContact(1)
       .then(contact => {
         expect(contact).to.be.an('object')
@@ -64,7 +67,7 @@ describe('contacts', () => {
     it('should be a function', () => {
       expect(contacts.deleteContact).to.be.a('function')
     })
-    it('should select everything inside the table', (done) => {
+    it('should delete everything belonging to the given id inside the contacts table', (done) => {
       contacts.deleteContact(1)
       .then(() => {
         contacts.getContacts()
@@ -78,4 +81,20 @@ describe('contacts', () => {
     })
   })
 
+  context('searchForContact', () => {
+    it('should be a function', () => {
+      expect(contacts.searchForContact).to.be.a('function')
+    })
+    it('should search a contact in the contacts table by given keywords', (done) => {
+      contacts.searchForContact('jared')
+      .then(contact => {
+        expect(contact).to.be.an('array')
+        expect(contact[0]).to.be.an('object')
+        expect(contact[0]).to.deep.include({ id: 1, first_name: 'Jared', last_name: 'Grippe' })
+        expect(contact[0]).to.deep.equal({ id: 1, first_name: 'Jared', last_name: 'Grippe' })
+        done()
+      })
+      .catch(err => done(err))
+    })
+  })
 })

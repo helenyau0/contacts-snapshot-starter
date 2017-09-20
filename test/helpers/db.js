@@ -21,7 +21,7 @@ const truncateTables = () => {
 
 const seedDB = () => {
   return db.query('select * from contacts').then( contacts => {
-  return db.none(seedFiles.contacts)
+    return db.none(seedFiles.contacts)
   })
 }
 
