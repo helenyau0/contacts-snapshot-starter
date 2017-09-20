@@ -11,7 +11,7 @@ function sql(file) {
 
 const seedFiles = {contacts: sql('../seed/contacts.sql')}
 
-const resetDB = () => {
+const truncateTables = () => {
   const tables = ['contacts']
   return Promise.all(tables.map(table => {
     return db.none(`TRUNCATE ${table} RESTART IDENTITY`)
@@ -23,13 +23,11 @@ const seedDB = () => {
 }
 
 const initDB = () => {
-  return resetDB().then(() => {
+  return truncateTables().then(() => {
     return seedDB()
   })
 }
 
 module.exports = {
-  resetDB,
-  seedDB,
   initDB
 }
