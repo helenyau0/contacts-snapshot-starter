@@ -11,7 +11,7 @@ describe('contacts', () => {
     it('should be a function', () => {
       expect(contacts.createContact).to.be.a('function')
     })
-    it.only('should insert a contact by first name and last name', (done) => {
+    it('should insert a contact by first name and last name', (done) => {
 
       const contact = {
         first_name: 'chococat',
@@ -29,4 +29,21 @@ describe('contacts', () => {
       .catch(err => done(err))
     })
   })
+
+  context('getContact', () => {
+    it('should be a function', () => {
+      expect(contacts.getContact).to.be.a('function')
+    })
+    it.only('should select everything inside the table', (done) => {
+      contacts.getContact(1)
+      .then(contact => {
+        expect(contact).to.be.an('object')
+        expect(contact).to.have.all.keys('id', 'first_name', 'last_name')
+        expect(contact).to.deep.include({ id: 1, first_name: 'Jared', last_name: 'Grippe' })
+        done()
+      })
+      .catch(err => done(err))
+    })
+  })
+
 })
