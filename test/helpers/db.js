@@ -1,5 +1,6 @@
 const pgp = require('pg-promise')()
-const cn = process.env.DATABASE_URL || 'postgres://localhost:5432/contacts_test'
+require('./env.js')
+const cn = process.env.DATABASE_URL
 const db = pgp(cn)
 const QueryFile = require('pg-promise').QueryFile
 const path = require('path')
@@ -19,7 +20,9 @@ const truncateTables = () => {
 }
 
 const seedDB = () => {
+  return db.query('select * from contacts').then( contacts => {
   return db.none(seedFiles.contacts)
+  })
 }
 
 const initDB = () => {

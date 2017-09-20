@@ -48,7 +48,7 @@ describe('contacts', () => {
     it('should be a function', () => {
       expect(contacts.getContact).to.be.a('function')
     })
-    it('should select everything inside the table', (done) => {
+    it.only('should select everything inside the table', (done) => {
       contacts.getContact(1)
       .then(contact => {
         expect(contact).to.be.an('object')
@@ -66,14 +66,15 @@ describe('contacts', () => {
     })
     it('should select everything inside the table', (done) => {
       contacts.deleteContact(1)
-
-      contacts.getContacts()
-      .then(all_contacts => {
-        expect(all_contacts).to.be.an('array')
-        expect(all_contacts[0]).to.not.include({ id: 1, first_name: 'Jared', last_name: 'Grippe' })
-        done()
+      .then(() => {
+        contacts.getContacts()
+        .then(all_contacts => {
+          expect(all_contacts).to.be.an('array')
+          expect(all_contacts[0]).to.not.include({ id: 1, first_name: 'Jared', last_name: 'Grippe' })
+          done()
+        })
+        .catch(err => done(err))
       })
-      .catch(err => done(err))
     })
   })
 
