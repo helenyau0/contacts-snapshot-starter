@@ -9,6 +9,8 @@ function sql(file) {
   return new QueryFile(fullPath)
 }
 
+const seedFiles = {contacts: sql('../seed/contacts.sql')}
+
 const resetDB = () => {
   const tables = ['contacts']
   return Promise.all(tables.map(table => {
@@ -17,7 +19,7 @@ const resetDB = () => {
 }
 
 const seedDB = () => {
-  return db.none(sql('../seed/contacts.sql'))
+  return db.none(seedFiles.contacts)
 }
 
 const initDB = () => {
