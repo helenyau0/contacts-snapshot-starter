@@ -10,19 +10,19 @@ function sql(file) {
   return new QueryFile(fullPath)
 }
 
-const seedFiles = {contacts: sql('../seed/contacts.sql')}
+const seedFiles = {contacts: sql('../seed/contacts.sql'), users: sql('../seed/users.sql')}
 
 const truncateTables = () => {
-  const tables = ['contacts']
+  const tables = ['contacts', 'users']
   return Promise.all(tables.map(table => {
     return db.none(`TRUNCATE ${table} RESTART IDENTITY`)
   }))
 }
 
 const seedDB = () => {
-  return db.query('select * from contacts').then( contacts => {
-    return db.none(seedFiles.contacts)
-  })
+
+  return db.none(seedFiles.contacts).then(() => db.none(seedFiles.users))
+
 }
 
 const initDB = () => {

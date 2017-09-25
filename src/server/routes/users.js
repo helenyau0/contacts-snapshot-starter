@@ -4,11 +4,6 @@ const { renderError } = require('../utils')
 
 const router = require('express').Router()
 
-router.get('/flash', (request, response) => {
-  request.flash('error', 'This email is already taken')
-  response.redirect('/users/signup')
-})
-
 router.get('/login', (request, response) => {
   if(request.session.user) {
     response.redirect('/')
@@ -39,11 +34,11 @@ router.get('/signup', (request, response) => {
   if(request.session.user) {
     response.redirect('/')
   } else {
-    response.render('signup', { message: request.flash('error') })
+    response.render('signup')
   }
 })
 
-router.post('/signup', (request, response) => {
+router.post('/signup', (request, response, next) => {
   const { email, password, confirm_pass } = request.body
 
   DbUsers.getUser(email)
