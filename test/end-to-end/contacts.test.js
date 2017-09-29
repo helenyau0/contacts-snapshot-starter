@@ -7,97 +7,129 @@ const contacts = require('../../src/db/contacts.js')
 const server = require('../../src/server.js')
 chai.use(chaiHttp)
 
-let register_details = {
-  'email': 'hi@email.com',
-  'password': '1234',
-  'confirm_pass': '1234'
-};
-
-
-const logInUser = () => {
-  return chai.request.agent(server)
-    .post('/users/login')
-    .send({email: 'hello@gmail.com', password: '1234'})
-    .then(res => {
-      expect(res).to.have.cookie('connect.sid')
-      console.log('agent::', agent);
-      return agent
-    })
-}
-
-describe.only('contacts', () => {
+describe('contacts', () => {
   beforeEach('reset the database', () => {
     return dbHelper.initDB()
   })
 
-  context('/POST signup', () => {
-    it('should register, login, and check authentication', () => {
-      // const agent = chai.request.agent(server)
-      // agent
-      // .post('/users/signup')
-      // .send(register_details)
-      // .end((err, res) => {
-      //   expect(res).to.have.status(200)
-      //   expect(res.request.cookies).to.include('connect.sid')
-      //   expect(res).to.redirect
-      //
-      //   chai.request(server)
-      //   .get('/')
-      //   .end((err, res) => {
-      //     expect(res).to.have.status(200)
-      //     done()
-      //   })
-      // })
+  it('should login and create authorization to access other routes', () => {
+    const agent = chai.request.agent(server)
 
+    return agent
+      .post('/users/login')
+      .set('Accept', 'application/json')
+      .send({email: 'hello@gmail.com', password: '1234'})
+      .then(res => {
+        expect(res).to.have.status(200)
+        expect(res).to.redirect
 
-      return chai.request.agent(server)
-        .post('/users/login')
-        .send({email: 'hello@gmail.com', password: '1234'})
-        .then(res => {
-          expect(res.request.cookies).to.include('connect.sid')
-          chai.request(server)
-          .get('/')
+        return agent.get('/')
           .then(res => {
             expect(res).to.have.status(200)
+            return agent.post('/contacts')
+            .send({first_name: 'Luna', last_name: 'Love'})
+            .then(res => {
+              expect(res).to.have.status(200)
+              expect(res).to.redirect
+              expect(res.res.text).to.include('<h1>Luna&nbsp;Love</h1>')
+
+              return dbHelper.getContacts()
+              .then(contacts => {
+                expect(contacts).to.be.an('array')
+                expect(contacts[3]).to.deep.include({ id: 4, first_name: 'Luna', last_name: 'Love' })
+              })
+          })
+          .then(res => {
+            return agent.get('/')
+            .then(res => {
+              expect(res).to.have.status(200)
+              expect(res.res.text).to.deep.include(`<a class="contact-link" href="/contacts/4">\n          Luna&nbsp;Love\n        </a>\n`)
+            })
           })
         })
-
-
     })
   })
 
+  it('should only allow authorized users to access the /contacts/new route', () => {
+    const agent = chai.request.agent(server)
 
+    return agent
+      .post('/users/login')
+      .set('Accept', 'application/json')
+      .send({email: 'hello@gmail.com', password: '1234'})
+      .then(res => {
+        expect(res).to.have.status(200)
+        expect(res).to.redirect
 
+        return agent.get('/contacts/new')
+          .then(res => {
+            expect(res).to.have.status(200)
+            expect(res.request.cookies).to.include('connect.sid')
+            expect(res.res.text).to.include('<h1>New Contact</h1>\n\n  <form method="post" action="/contacts" class="new-contact-form">\n')
+          })
+      })
+  })
 
+  it('should be able to do match searching', () => {
+    const agent = chai.request.agent(server)
 
-  // context('/GET ', () => {
-  //   it.only('it should GET all the contacts', (done) => {
-  //     chai.request(server)
-  //     .get('/')
-  //     .set('Cookie', 'cookieName=cookieValue')
-  //     .end((err, res) => {
-  //       console.log('res::::', res);
-  //       expect(res.status).to.equal(200)
-  //       done()
-  //     })
-  //   })
-  // })
+    return agent
+      .post('/users/login')
+      .set('Accept', 'application/json')
+      .send({email: 'hello@gmail.com', password: '1234'})
+      .then(res => {
+        expect(res).to.have.status(200)
+        expect(res).to.redirect
 
-  // context('/POST ', () => {
-  //   it.only('it should create a new contact', (done) => {
-  //     chai.request(server)
-  //     .post('/contacts')
-  //     .send({
-  //       first_name: 'ryan',
-  //       last_name: 'popsicle'
-  //     })
-  //     .end((err, res) => {
-  //       res.status.should.equal(200)
-  //       res.body.data.should.include.keys(
-  //         'id', 'first_name', 'last_name'
-  //       )
-  //       done()
-  //     })
-  //   })
-  // })
+        return agent.get('/contacts/search')
+          .query({q: 'jared'})
+          .then(res => {
+            expect(res).to.have.status(200)
+            expect(res.request.cookies).to.include('connect.sid')
+            expect(res.res.text).to.deep.include('<a class="contact-link" href="/contacts/1">\n          Jared&nbsp;Grippe\n        </a>\n')
+          })
+      })
+  })
+
+  it('should allow authorized users to delete contacts', () => {
+    const agent = chai.request.agent(server)
+
+    return agent
+      .post('/users/login')
+      .set('Accept', 'application/json')
+      .send({email: 'hello@gmail.com', password: '1234'})
+      .then(res => {
+        expect(res).to.have.status(200)
+        expect(res).to.redirect
+
+        return agent.get(`/contacts/${1}/delete`)
+        .then(res => {
+          expect(res).to.have.status(200)
+          expect(res.request.cookies).to.include('connect.sid')
+          expect(res.res.text).to.not.include('<a class="contact-link" href="/contacts/1">\n          Jared&nbsp;Grippe\n        </a>\n')
+          expect(res.res.text).to.include('<a class="contact-link" href="/contacts/2">\n          Tanner&nbsp;Welsh\n        </a>\n')
+          expect(res.res.text).to.include('<a class="contact-link" href="/contacts/3">\n          NeEddra&nbsp;James\n        </a>\n')
+        })
+      })
+  })
+
+  it(`should go to that user's profile page`, () => {
+    const agent = chai.request.agent(server)
+
+    return agent
+      .post('/users/login')
+      .set('Accept', 'application/json')
+      .send({email: 'hello@gmail.com', password: '1234'})
+      .then(res => {
+        expect(res).to.have.status(200)
+        expect(res).to.redirect
+
+        return agent.get(`/contacts/${1}/`)
+        .then(res => {
+          expect(res).to.have.status(200)
+          expect(res.request.cookies).to.include('connect.sid')
+          expect(res.res.text).to.include('<div class="contact-show-page-controls">\n    <a class="delete-contact" href="/contacts/1/delete">delete</a>\n  </div>\n\n  <h1>Jared&nbsp;Grippe</h1>\n\n')
+        })
+      })
+  })
 })

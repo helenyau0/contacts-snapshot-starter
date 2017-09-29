@@ -12,7 +12,6 @@ const loginRequired = (request, response, next) => {
 }
 
 router.get('/', loginRequired, (request, response) => {
-  console.log(request.headers)
   DbContacts.getContacts()
   .then((contacts) => {response.render('index', { contacts })})
   .catch( err => console.log('err', err) )

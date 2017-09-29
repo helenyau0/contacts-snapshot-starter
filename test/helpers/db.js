@@ -31,6 +31,11 @@ const initDB = () => {
   })
 }
 
+const getContacts = () => {
+  return db.any('SELECT * FROM contacts')
+}
+
 module.exports = {
-  initDB
+  initDB,
+  getContacts
 }
