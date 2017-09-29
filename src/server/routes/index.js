@@ -12,13 +12,9 @@ const loginRequired = (request, response, next) => {
 }
 
 router.get('/', loginRequired, (request, response) => {
-  if(request.session.user) {
-    DbContacts.getContacts()
-    .then((contacts) => {response.render('index', { contacts })})
-    .catch( err => console.log('err', err) )
-  } else {
-    response.redirect('/users/login')
-  }
+  DbContacts.getContacts()
+  .then((contacts) => {response.render('index', { contacts })})
+  .catch( err => console.log('err', err) )
 })
 
 router.use('/contacts', contacts); // /contacts/search
