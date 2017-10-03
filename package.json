@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "start:dev": "nodemon src/server.js",
-    "db:reset": "dropdb contacts_test && createdb contacts_test && npm run load_schema && npm run load_users",
+    "db:create": "createdb contacts_test",
+    "db:reset": "dropdb contacts_test; createdb contacts_test && npm run load_schema && npm run load_users",
     "load_schema": "psql -d contacts_test < src/db/schema/schema.sql",
     "load_contacts": "psql -d contacts_test < test/seed/contacts.sql",
     "load_users": "psql -d contacts_test < test/seed/users.sql",
@@ -29,5 +30,8 @@
   },
   "devDependencies": {
     "nodemon": "^1.11.0"
+  },
+  "engines": {
+    "node": ">=6.11.1"
   }
 }
