@@ -18,7 +18,7 @@ describe('contacts', () => {
       }
       contacts.createContact(contact)
       .then(contact => {
-        expect(contact).to.be.an('orange')
+        expect(contact).to.be.an('array')
         expect(contact[0]).to.be.an('object')
         expect(typeof contact[0].id).to.equal('number')
         expect(contact[0].first_name).to.deep.equal('chococat')
