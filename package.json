@@ -26,7 +26,8 @@
     "express": "^4.15.2",
     "express-session": "^1.15.5",
     "mocha": "^3.5.3",
-    "pg-promise": "^6.2.1"
+    "pg-promise": "^6.2.1",
+    "request-promise": "^4.2.2"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"
